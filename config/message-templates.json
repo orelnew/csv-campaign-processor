@@ -1,25 +1,25 @@
 {
   "whatsapp": {
-    "greeting": "Hi {company}! 👋",
-    "intro": "I noticed you're a {business_type} business in {city}. I wanted to share some modern website examples that could help you attract more customers:",
-    "demo_section_header": "🔧 Professional Demo Sites:",
-    "demo_link_format": "• {display_name}: {short_url}",
-    "value_proposition": "These sites show modern features like online booking, customer testimonials, and mobile-optimized design that can significantly increase your leads.",
-    "call_to_action": "Would you like a quick 15-minute call to discuss how a professional website could help grow your business?",
-    "signature": "Best regards,\n[Your Name]"
+    "greeting": "Hi {company}!☺️",
+    "intro": "Here are the live previews of the demo websites we built for your business.",
+    "demo_section_header": "",
+    "demo_link_format": "{display_name}: {short_url}",
+    "value_proposition": "",
+    "call_to_action": "",
+    "signature": ""
   },
   "business_type_customization": {
     "plumbing": {
-      "intro": "I noticed you're a plumbing business in {city}. I wanted to share some modern website examples that could help you attract more emergency service calls and residential clients:",
-      "demo_section_header": "🔧 Professional Plumbing Sites:"
+      "intro": "Here are the live previews of the demo websites we built for your business.",
+      "demo_section_header": ""
     },
     "landscaping": {
-      "intro": "I noticed you're a landscaping business in {city}. I wanted to share some modern website examples that could help you showcase your garden transformations and attract more clients:",
-      "demo_section_header": "🌿 Professional Landscaping Sites:"
+      "intro": "Here are the live previews of the demo websites we built for your business.",
+      "demo_section_header": ""
     },
     "general": {
-      "intro": "I noticed you're a service business in {city}. I wanted to share some modern website examples that could help you attract more customers:",
-      "demo_section_header": "💼 Professional Business Sites:"
+      "intro": "Here are the live previews of the demo websites we built for your business.",
+      "demo_section_header": ""
     }
   }
 }

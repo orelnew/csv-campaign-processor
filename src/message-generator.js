@@ -96,27 +96,11 @@ function generateMessageForProspect(prospect, urls, templates) {
       display_name: url.display_name,
       short_url: url.short_url
     })
-  ).join('\n');
+  ).join('\\n');
   
-  const valueProposition = baseTemplate.value_proposition;
-  const callToAction = baseTemplate.call_to_action;
-  const signature = baseTemplate.signature;
-  
-  // Combine all parts
-  const message = [
-    greeting,
-    '',
-    intro,
-    '',
-    demoSectionHeader,
-    demoLinks,
-    '',
-    valueProposition,
-    '',
-    callToAction,
-    '',
-    signature
-  ].join('\n');
+  // Combine all parts with \n literal characters (for CSV format)
+  const messageParts = [greeting, intro, demoLinks].filter(part => part && part.trim() !== '');
+  const message = messageParts.join('\\n\\n');
   
   return message;
 }
