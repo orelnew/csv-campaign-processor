@@ -6,9 +6,10 @@ import chalk from 'chalk';
 /**
  * Parse prospects CSV file and validate data format
  * @param {string} filePath - Path to CSV file
+ * @param {string} fallbackBusinessType - Fallback business type for prospects missing business_type
  * @returns {Promise<Array>} Array of prospect objects
  */
-export async function parseProspectsCSV(filePath) {
+export async function parseProspectsCSV(filePath, fallbackBusinessType = 'general') {
   const prospects = [];
   let rowCount = 0;
   const errors = [];
@@ -19,6 +20,9 @@ export async function parseProspectsCSV(filePath) {
   }
 
   console.log(chalk.blue(`📖 Parsing CSV file: ${filePath}`));
+  if (fallbackBusinessType !== 'general') {
+    console.log(chalk.blue(`   Using fallback business type: ${fallbackBusinessType}`));
+  }
 
   return new Promise((resolve, reject) => {
     createReadStream(filePath)
@@ -27,7 +31,7 @@ export async function parseProspectsCSV(filePath) {
         rowCount++;
         
         try {
-          const prospect = validateAndCleanProspect(row, rowCount);
+          const prospect = validateAndCleanProspect(row, rowCount, fallbackBusinessType);
           prospects.push(prospect);
         } catch (error) {
           errors.push(`Row ${rowCount}: ${error.message}`);
@@ -72,11 +76,12 @@ export async function parseProspectsCSV(filePath) {
  * Validate and clean individual prospect data
  * @param {Object} row - Raw CSV row data
  * @param {number} rowNumber - Row number for error reporting
+ * @param {string} fallbackBusinessType - Fallback business type if not in CSV
  * @returns {Object} Clean prospect object
  */
-function validateAndCleanProspect(row, rowNumber) {
-  // Required fields
-  const requiredFields = ['company', 'city', 'phone', 'business_type'];
+function validateAndCleanProspect(row, rowNumber, fallbackBusinessType = 'general') {
+  // Required fields (business_type is now optional)
+  const requiredFields = ['company', 'city', 'phone'];
   const missing = requiredFields.filter(field => !row[field] || row[field].trim() === '');
   
   if (missing.length > 0) {
@@ -87,7 +92,15 @@ function validateAndCleanProspect(row, rowNumber) {
   const company = cleanCompanyName(row.company);
   const city = cleanCityName(row.city);
   const phone = cleanPhoneNumber(row.phone);
-  const business_type = validateBusinessType(row.business_type);
+  
+  // Handle business_type with fallback logic
+  let business_type;
+  if (row.business_type && row.business_type.trim() !== '') {
+    business_type = validateBusinessType(row.business_type);
+  } else {
+    business_type = validateBusinessType(fallbackBusinessType);
+    console.log(chalk.gray(`   Row ${rowNumber}: Using fallback business type "${business_type}" for ${company}`));
+  }
 
   // Generate unique ID for tracking
   const id = `prospect_${rowNumber.toString().padStart(4, '0')}`;
@@ -98,7 +111,8 @@ function validateAndCleanProspect(row, rowNumber) {
     city,
     phone,
     business_type,
-    original_row: rowNumber
+    original_row: rowNumber,
+    used_fallback_type: !row.business_type || row.business_type.trim() === ''
   };
 }
 

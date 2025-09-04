@@ -42,8 +42,9 @@ async function main() {
     .option('business-type', {
       alias: 't',
       type: 'string',
-      describe: 'Override business type for all prospects',
-      choices: ['plumbing', 'landscaping', 'general']
+      describe: 'Fallback business type for prospects missing business_type column',
+      choices: ['plumbing', 'landscaping', 'general'],
+      default: 'general'
     })
     .option('dry-run', {
       type: 'boolean',
@@ -60,7 +61,8 @@ async function main() {
       describe: 'Show preview of first N generated messages',
       default: 3
     })
-    .example('$0 -i prospects.csv -t plumbing -o campaign.csv', 'Process prospects as plumbing businesses')
+    .example('$0 -i prospects.csv', 'Process prospects using business_type from CSV')
+    .example('$0 -i prospects.csv -t plumbing', 'Use plumbing as fallback for missing business_type')
     .example('$0 -i prospects.csv --dry-run', 'Validate CSV format without processing')
     .help()
     .alias('help', 'h')
@@ -72,14 +74,12 @@ async function main() {
   try {
     // Step 1: Parse and validate CSV
     console.log(chalk.bold.blue('\n🚀 Step 1: Parsing CSV file...'));
-    const prospects = await parseProspectsCSV(argv.input);
+    const prospects = await parseProspectsCSV(argv.input, argv.businessType);
     
-    // Override business type if specified
-    if (argv.businessType) {
-      console.log(chalk.yellow(`🔄 Overriding all business types to: ${argv.businessType}`));
-      prospects.forEach(prospect => {
-        prospect.business_type = argv.businessType;
-      });
+    // Show how many used fallback business type
+    const fallbackCount = prospects.filter(p => p.used_fallback_type).length;
+    if (fallbackCount > 0) {
+      console.log(chalk.blue(`   📋 ${fallbackCount} prospects used fallback business type: ${argv.businessType}`));
     }
     
     // Show prospects summary

@@ -30,8 +30,14 @@ npm run dev
 ### Basic Usage
 
 ```bash
-# Process prospects CSV
-node src/main.js --input prospects.csv --business-type plumbing --output campaign.csv
+# Simple - CSV contains business_type column (recommended)
+node src/main.js --input prospects.csv
+
+# With fallback - use plumbing for any missing business_type
+node src/main.js --input prospects.csv --business-type plumbing
+
+# Specify output file
+node src/main.js --input prospects.csv --output campaign.csv
 
 # Dry run (validate only)
 node src/main.js --input prospects.csv --dry-run
@@ -42,7 +48,9 @@ node src/main.js --input prospects.csv --skip-shortener
 
 ## 📋 Input Requirements
 
-### CSV Format
+### CSV Format Options
+
+#### Option 1: With business_type column (recommended)
 ```csv
 company,city,phone,business_type
 Smith Plumbing Services,Austin,(555) 123-4567,plumbing
@@ -50,11 +58,30 @@ Green Thumb Landscaping,Phoenix,(602) 555-9876,landscaping
 Quick Fix Repairs,Denver,303-555-0123,general
 ```
 
+#### Option 2: Without business_type (use -t flag)
+```csv
+company,city,phone
+Smith Plumbing Services,Austin,(555) 123-4567
+Elite Plumbing Co,Denver,303-555-0123
+Pro Plumbers LLC,Phoenix,(602) 555-9876
+```
+
+#### Option 3: Mixed (some with, some without)
+```csv
+company,city,phone,business_type
+Smith Plumbing,Austin,(555) 123-4567,plumbing
+Quick Fix,Denver,303-555-0123,
+Green Gardens,Phoenix,(602) 555-9876,landscaping
+Fast Repairs,Miami,305-555-0123,
+```
+
 ### Required Columns
 - **company**: Business name (max 100 characters)
 - **city**: Location (max 50 characters)  
 - **phone**: Contact number (10+ digits)
-- **business_type**: `plumbing`, `landscaping`, or `general`
+
+### Optional Columns
+- **business_type**: `plumbing`, `landscaping`, or `general` (uses fallback if missing)
 
 ## 📤 Output Format
 
@@ -116,8 +143,8 @@ Best regards,
 Options:
   -i, --input           Input CSV file path [required]
   -o, --output          Output CSV file path [default: "output/campaign-ready.csv"]
-  -t, --business-type   Override business type for all prospects
-                        [choices: "plumbing", "landscaping", "general"]
+  -t, --business-type   Fallback business type for prospects missing business_type column
+                        [choices: "plumbing", "landscaping", "general"] [default: "general"]
       --dry-run         Parse and validate only, do not process [boolean]
       --skip-shortener  Skip URL shortening (use original URLs) [boolean]
       --preview         Show preview of first N messages [number] [default: 3]
@@ -128,8 +155,14 @@ Options:
 ### Examples
 
 ```bash
-# Process 1000 plumbing prospects
-node src/main.js -i prospects.csv -t plumbing -o plumbing-campaign.csv
+# Simple processing (CSV has business_type column)
+node src/main.js -i prospects.csv
+
+# Mixed CSV with fallback for missing business_type
+node src/main.js -i prospects.csv -t plumbing
+
+# All plumbing prospects (CSV without business_type column)
+node src/main.js -i plumbing-prospects.csv -t plumbing -o plumbing-campaign.csv
 
 # Test with sample data
 npm run dev

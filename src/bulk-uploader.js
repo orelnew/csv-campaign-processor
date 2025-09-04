@@ -3,7 +3,7 @@ import chalk from 'chalk';
 
 // Configuration
 const SHORTENER_CONFIG = {
-  BASE_URL: 'https://websites-links.netlify.app',
+  BASE_URL: process.env.SHORTENER_URL || 'https://websites-links.netlify.app',
   BULK_ENDPOINT: '/api/bulk-upload',
   TIMEOUT: 60000, // 1 minute timeout for bulk operations
   MAX_RETRIES: 3,
@@ -49,7 +49,8 @@ export async function bulkUploadToShortener(urlMappings) {
           timeout: SHORTENER_CONFIG.TIMEOUT,
           headers: {
             'Content-Type': 'application/json',
-            'User-Agent': 'CSV-Campaign-Processor/1.0'
+            'User-Agent': 'CSV-Campaign-Processor/1.0',
+            'Origin': 'http://localhost:5173' // Required for CORS
           }
         }
       );
@@ -206,10 +207,27 @@ export async function testShortenerConnection() {
   try {
     console.log(chalk.blue('🔍 Testing connection to URL shortener...'));
     
-    const response = await axios.get(`${SHORTENER_CONFIG.BASE_URL}/health`, {
-      timeout: 10000,
-      validateStatus: (status) => status < 500 // Accept anything except server errors
-    });
+    // Test with a small bulk request to the actual endpoint since there's no dedicated health endpoint
+    const testPayload = {
+      urls: [{
+        original_url: 'https://example.com',
+        metadata: { test: true }
+      }]
+    };
+    
+    const response = await axios.post(
+      `${SHORTENER_CONFIG.BASE_URL}${SHORTENER_CONFIG.BULK_ENDPOINT}`,
+      testPayload,
+      {
+        timeout: 10000,
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'CSV-Campaign-Processor/1.0',
+          'Origin': 'http://localhost:5173' // Required for CORS
+        },
+        validateStatus: (status) => status < 500 // Accept anything except server errors
+      }
+    );
     
     console.log(chalk.green(`✅ Connection successful (Status: ${response.status})`));
     return true;
