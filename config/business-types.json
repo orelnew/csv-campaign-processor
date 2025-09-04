@@ -1,0 +1,54 @@
+{
+  "plumbing": {
+    "sites": [
+      {
+        "url": "https://plumbing-client-2.netlify.app",
+        "display_name": "Emergency Services Demo"
+      },
+      {
+        "url": "https://plumbing-client-3.netlify.app", 
+        "display_name": "Modern Design Example"
+      },
+      {
+        "url": "https://plumbing-client-5.netlify.app",
+        "display_name": "Customer Reviews Showcase"
+      },
+      {
+        "url": "https://plumbing-client-8.netlify.app",
+        "display_name": "Professional Portfolio"
+      }
+    ]
+  },
+  "landscaping": {
+    "sites": [
+      {
+        "url": "https://landscaping-client-1.netlify.app",
+        "display_name": "Garden Design Portfolio"
+      },
+      {
+        "url": "https://landscaping-client-3.netlify.app",
+        "display_name": "Residential Landscaping"
+      },
+      {
+        "url": "https://landscaping-client-4.netlify.app",
+        "display_name": "Commercial Landscaping"
+      },
+      {
+        "url": "https://landscaping-client-pro.netlify.app",
+        "display_name": "Premium Landscaping Showcase"
+      }
+    ]
+  },
+  "general": {
+    "sites": [
+      {
+        "url": "https://plumbing-client-2.netlify.app",
+        "display_name": "Service Business Example"
+      },
+      {
+        "url": "https://landscaping-client-pro.netlify.app",
+        "display_name": "Professional Business Showcase"
+      }
+    ]
+  }
+}
