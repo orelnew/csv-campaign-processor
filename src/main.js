@@ -12,7 +12,7 @@ import { createObjectCsvWriter } from 'csv-writer';
 import { parseProspectsCSV, getProspectsSummary } from './csv-parser.js';
 import { generateDemoUrls, groupUrlsByProspect, updateWithShortUrls, validateUrlGeneration } from './url-generator.js';
 import { bulkUploadToShortener, createFallbackResults, validateBulkUploadResults, testShortenerConnection, estimateProcessingTime } from './bulk-uploader.js';
-import { generateWhatsAppMessages, validateMessages, getMessageStatistics, generateMessagePreviews } from './message-generator.js';
+import { generateWhatsAppMessages, validateMessages, getMessageStatistics, generateMessagePreviews, addWhatsAppUrls } from './message-generator.js';
 
 // ASCII Art Logo
 const LOGO = `
@@ -153,8 +153,12 @@ async function main() {
     console.log(chalk.bold.blue('\n🚀 Step 4: Generating WhatsApp messages...'));
     const prospectsWithMessages = await generateWhatsAppMessages(prospects, updatedGroupedUrls);
     
+    // Step 4.5: Add WhatsApp URLs with proper encoding
+    console.log(chalk.blue('🔗 Adding WhatsApp URLs with proper line break encoding...'));
+    const prospectsWithUrls = addWhatsAppUrls(prospectsWithMessages);
+    
     // Validate messages
-    const messageValidation = validateMessages(prospectsWithMessages);
+    const messageValidation = validateMessages(prospectsWithUrls);
     console.log(chalk.blue(`   Generated ${messageValidation.valid_messages} valid messages`));
     console.log(chalk.blue(`   Average message length: ${messageValidation.average_length} characters`));
     
@@ -163,7 +167,7 @@ async function main() {
     }
     
     // Show message statistics
-    const messageStats = getMessageStatistics(prospectsWithMessages);
+    const messageStats = getMessageStatistics(prospectsWithUrls);
     console.log(chalk.blue('\n📊 Message Statistics:'));
     console.log(chalk.blue(`   Total characters: ${messageStats.total_characters.toLocaleString()}`));
     console.log(chalk.blue(`   Total demo links: ${messageStats.total_demo_links}`));
@@ -171,12 +175,12 @@ async function main() {
     
     // Step 5: Export to CSV
     console.log(chalk.bold.blue('\n🚀 Step 5: Exporting campaign CSV...'));
-    await exportToCsv(prospectsWithMessages, argv.output);
+    await exportToCsv(prospectsWithUrls, argv.output);
     
     // Show preview if requested
     if (argv.preview > 0) {
       console.log(chalk.bold.blue(`\n👀 Preview of first ${argv.preview} messages:`));
-      const previews = generateMessagePreviews(prospectsWithMessages, argv.preview);
+      const previews = generateMessagePreviews(prospectsWithUrls, argv.preview);
       
       previews.forEach((preview, index) => {
         console.log(chalk.green(`\n${index + 1}. ${preview.company} (${preview.business_type})`));
@@ -230,7 +234,8 @@ async function exportToCsv(prospects, outputPath) {
       { id: 'city', title: 'city' },
       { id: 'phone', title: 'phone' },
       { id: 'business_type', title: 'business_type' },
-      { id: 'whatsapp_message', title: 'whatsapp_message' }
+      { id: 'whatsapp_message', title: 'whatsapp_message' },
+      { id: 'whatsapp_url', title: 'whatsapp_url' }
     ]
   });
   
@@ -240,7 +245,8 @@ async function exportToCsv(prospects, outputPath) {
     city: prospect.city,
     phone: prospect.phone,
     business_type: prospect.business_type,
-    whatsapp_message: prospect.whatsapp_message
+    whatsapp_message: prospect.whatsapp_message,
+    whatsapp_url: prospect.whatsapp_url
   }));
   
   // Write CSV file

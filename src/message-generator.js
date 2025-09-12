@@ -221,6 +221,55 @@ export function validateMessages(prospects) {
 }
 
 /**
+ * Generate WhatsApp URL from prospect data with proper encoding
+ * @param {Object} prospect - Prospect with whatsapp_message and phone
+ * @returns {string} Complete WhatsApp URL with encoded message
+ */
+export function generateWhatsAppUrl(prospect) {
+  const { phone, whatsapp_message } = prospect;
+  
+  if (!phone || !whatsapp_message) {
+    throw new Error('Phone number and WhatsApp message are required');
+  }
+  
+  // Convert literal \n strings to actual newlines
+  const messageWithNewlines = whatsapp_message.replace(/\\n/g, '\n');
+  
+  // Clean and format phone number
+  const cleanPhone = phone.replace(/\D/g, ''); // Remove non-digits
+  const formattedPhone = cleanPhone.startsWith('1') ? cleanPhone : '1' + cleanPhone;
+  
+  // URL encode the message (converts \n to %0A)
+  const encodedMessage = encodeURIComponent(messageWithNewlines);
+  
+  // Return WhatsApp API URL
+  return `https://api.whatsapp.com/send?phone=${formattedPhone}&text=${encodedMessage}`;
+}
+
+/**
+ * Add WhatsApp URLs to all prospects
+ * @param {Array} prospects - Array of prospects with messages
+ * @returns {Array} Prospects with added whatsapp_url field
+ */
+export function addWhatsAppUrls(prospects) {
+  return prospects.map(prospect => {
+    try {
+      const whatsapp_url = generateWhatsAppUrl(prospect);
+      return {
+        ...prospect,
+        whatsapp_url
+      };
+    } catch (error) {
+      console.log(chalk.red(`❌ Error generating WhatsApp URL for ${prospect.company}: ${error.message}`));
+      return {
+        ...prospect,
+        whatsapp_url: `ERROR: ${error.message}`
+      };
+    }
+  });
+}
+
+/**
  * Create message statistics summary
  * @param {Array} prospects - Array of prospects with messages
  * @returns {Object} Statistics summary
