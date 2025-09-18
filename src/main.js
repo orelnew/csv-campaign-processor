@@ -234,7 +234,6 @@ async function exportToCsv(prospects, outputPath) {
       { id: 'city', title: 'city' },
       { id: 'phone', title: 'phone' },
       { id: 'business_type', title: 'business_type' },
-      { id: 'whatsapp_message', title: 'whatsapp_message' },
       { id: 'whatsapp_url', title: 'whatsapp_url' }
     ]
   });
@@ -245,7 +244,6 @@ async function exportToCsv(prospects, outputPath) {
     city: prospect.city,
     phone: prospect.phone,
     business_type: prospect.business_type,
-    whatsapp_message: prospect.whatsapp_message,
     whatsapp_url: prospect.whatsapp_url
   }));
   
@@ -254,10 +252,13 @@ async function exportToCsv(prospects, outputPath) {
   
   console.log(chalk.green(`   ✅ Exported ${csvData.length} records to ${outputPath}`));
   
-  // Also save detailed JSON for debugging
+  // Clean up any existing detailed JSON files
   const jsonOutputPath = outputPath.replace('.csv', '-detailed.json');
-  await fs.writeJson(jsonOutputPath, prospects, { spaces: 2 });
-  console.log(chalk.gray(`   📄 Detailed data saved to ${jsonOutputPath}`));
+  try {
+    await fs.remove(jsonOutputPath);
+  } catch (error) {
+    // File doesn't exist, no need to remove
+  }
 }
 
 /**
